@@ -5,40 +5,53 @@
 # 1. get list of files from /safebrowsing
 # 2. get filesizes of ^^
 # 3. add filename/size key pairs to dict
-# 4. get prefs header [ex: whitelist], compare to files in dict and verify size is under maximum
-
+# 4. get prefs header [ex: whitelist], compare to files in dict
+# 5. verify size is under maximum
 
 import ConfigParser
 import os
 
-
-parser = ConfigParser.SafeConfigParser()
-parser.read('prefs.ini')
-
+conf = ConfigParser.ConfigParser()
+conf.read('prefs.ini')
 dir = ('safebrowsing')
-sections = ['whitelist', 'blacklist', 'content', 'DNT', 'plugin']
+sections = ['flashblock', 'whitelist', 'blacklist', 'content', 'DNT', 'plugin']
 
 p = []
 f = []
+s = []
 
-def prefs_group(section):
+
+def prefs_group(conf, section):
     # Go through each of the non-default prefs sections and list the files
-    prefs = parser.get(section, 'file_list')
+    prefs = conf.get(section, 'file_list')
     p.extend(prefs.split(','))
-    print(p)
     return p
-for section in sections:
-    prefs_group(section)
 
-def test_safebrowsing():
+    for section in sections:
+        prefs_group(section)
+
+
+def test_safebrowsing(conf):
     """Hardcoded location of safebrowsing directory will need to be updated
     to reflect new FF profile file directory"""
     # Get list of files
     for name in os.listdir('safebrowsing'):
-        filename = os.path.join('safebrowsing', name)
-        if os.path.isfile(filename):
-            f.append(filename)
-    # Create list with filename, size tuples
-    for i in xrange(len(f)):
-        f[i] = (os.path.splitext(f[i])[0], os.path.getsize(f[i]))
-    return f
+        file = os.path.splitext(name)[0]
+        if file not in (f):
+            f.append(file)
+
+    # compare local files with expected file_list
+    flashblock = conf.get("flashblock", "file_list")
+    assert flashblock == (f)
+
+
+def test_filesize(conf):
+    # collect local file sizes
+    for file in os.listdir('safebrowsing'):
+        size = os.path.getsize
+        s.append(size)
+
+    wh_size = conf.getint("whitelist", "size_threshold")
+    wh_th = conf.getint("whitelist", "threshold_operation")
+    wh_max = eval(conf.getint("whitelist", "max"))
+    assert 900000000, wh_max
