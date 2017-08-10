@@ -7,51 +7,36 @@
 # 3. add filename/size key pairs to dict
 # 4. get prefs header [ex: whitelist], compare to files in dict
 # 5. verify size is under maximum
-
-import ConfigParser
 import os
+import pytest
 
-conf = ConfigParser.ConfigParser()
-conf.read('prefs.ini')
-dir = ('safebrowsing')
-sections = ['flashblock', 'whitelist', 'blacklist', 'content', 'DNT', 'plugin']
+from helper_prefs import get_profile_expected_files
 
-p = []
 f = []
 s = []
 
 
-def prefs_group(conf, section):
-    # Go through each of the non-default prefs sections and list the files
-    prefs = conf.get(section, 'file_list')
-    p.extend(prefs.split(','))
-    return p
-
-    for section in sections:
-        prefs_group(section)
-
-
-def test_safebrowsing(conf):
+def test_safebrowsing_contains_files(conf, section):
     """Hardcoded location of safebrowsing directory will need to be updated
     to reflect new FF profile file directory"""
-    # Get list of files
+    # Get list of local files
     for name in os.listdir('safebrowsing'):
         file = os.path.splitext(name)[0]
         if file not in (f):
             f.append(file)
 
-    # compare local files with expected file_list
-    flashblock = conf.get("flashblock", "file_list")
-    assert flashblock == (f)
+    expected = get_profile_expected_files(conf,['moztestpub'])
+    assert set(expected).issubset(set(f))
 
 
 def test_filesize(conf):
     # collect local file sizes
     for file in os.listdir('safebrowsing'):
-        size = os.path.getsize
-        s.append(size)
-
-    wh_size = conf.getint("whitelist", "size_threshold")
-    wh_th = conf.getint("whitelist", "threshold_operation")
-    wh_max = eval(conf.getint("whitelist", "max"))
-    assert 900000000, wh_max
+        # print(f)
+        if file in (f):
+            size = os.path.getsize(os.path.join('safebrowsing', file))
+            s.append(size)
+    # print (s)
+    wh_size = conf.get("whitelist", "size_threshold")
+    for item in s:
+        assert item < wh_size
