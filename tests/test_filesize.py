@@ -8,7 +8,6 @@
 # 4. get prefs header [ex: whitelist], compare to files in dict
 # 5. verify size is under maximum
 import os
-import pytest
 
 from helper_prefs import get_profile_expected_files
 
@@ -16,7 +15,7 @@ f = []
 s = []
 
 
-def test_safebrowsing_contains_files(conf, section):
+def test_safebrowsing_contains_files(conf):
     """Hardcoded location of safebrowsing directory will need to be updated
     to reflect new FF profile file directory"""
     # Get list of local files
@@ -25,7 +24,7 @@ def test_safebrowsing_contains_files(conf, section):
         if file not in (f):
             f.append(file)
 
-    expected = get_profile_expected_files(conf,['moztestpub'])
+    expected = get_profile_expected_files(conf, ('moztestpub'))
     assert set(expected).issubset(set(f))
 
 

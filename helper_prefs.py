@@ -6,19 +6,25 @@ sections = ['whitelist', 'blacklist', 'content', 'DNT', 'plugin']
 p = []
 pf = []
 
-def get_profile_expected_files(conf, section):
+
+def pref_sets_list_all(conf):
+    pass
+
+def pref_set(name_pref_set):
+    pass
+
+def pref_set_files_in_safebrowsing_dir(conf, section):
     # get list of expected files in a profile
-
-    # moztest = conf.get('moztestpub', 'urlclassifier.trackingTable')
-    # pf.extend(moztest.split(','))
-    # moztest_wl = conf.get('moztestpub', 'urlclassifier.trackingWhitelistTable')
-    # pf.extend(moztest_wl.split(','))
-
     for item in section:
         items = conf.items(section)
-        for (val) in items:
-            pf.extend(prefs.split(','))
+        for val in items:
+            # subval = val.split()
+            # pf.extend(subval)
+            # pf.extend(val.split(','))
+            pf.extend(val)
+            print ('val goes here', val)
     return pf
+
 
 def prefs_group(conf, section):
     # Go through each of the non-default prefs sections and list the files
@@ -28,6 +34,7 @@ def prefs_group(conf, section):
 
     for section in sections:
         prefs_group(section)
+
 
 def set_prefs(conf, sections):
     fp = webdriver.FirefoxProfile()
