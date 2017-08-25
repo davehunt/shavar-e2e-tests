@@ -9,23 +9,20 @@
 # 5. verify size is under maximum
 import os
 
-from helper_prefs import max_file_size_file_list
-from helper_prefs import pref_sets_combined_file_lists
-
-f = []
-s = []
+from helper_prefs import (
+  max_file_size_file_list,
+  pref_sets_combined_file_lists,
+  safebrowsing_files_unique,
+  safebrowsing_files_local
+)
 
 
 def test_safebrowsing_contains_expected_files(conf):
     """Hardcoded location of safebrowsing directory will need to be updated
     to reflect new FF profile file directory. Also, hardcoded profile type
     'moztestpub' needs to be updated to reflect test profile type."""
-    # Get list of local files
-    for name in os.listdir('safebrowsing'):
-        file = os.path.splitext(name)[0]
-        if file not in (f):
-            f.append(file)
 
+    f = safebrowsing_files_unique()
     expected = pref_sets_combined_file_lists(conf, 'moztestpub')
     assert set(expected).issubset(set(f))
 
@@ -37,9 +34,11 @@ def test_safebrowsing_filesize_under_maximum(conf):
     expected = max_file_size_file_list(conf, 'whitelist')
 
     # Collect local files that match expected list
+    f = safebrowsing_files_local()
     max_list_set = set(expected).intersection(f)
 
     # Get file sizes
+    s = []
     for file in max_list_set:
         size = os.path.getsize(os.path.join('safebrowsing', file))
         s.append(size)

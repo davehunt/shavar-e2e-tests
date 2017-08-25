@@ -1,3 +1,4 @@
+import os
 from selenium import webdriver
 
 
@@ -5,11 +6,12 @@ dir = ('safebrowsing')
 sections = ['whitelist', 'blacklist', 'content', 'DNT', 'plugin']
 
 
+# list all sections (prefs.ini)
 def sections_list_all(conf):
     return conf.sections()
 
 
-# list all sections in prefs.ini
+# list all items in a given section (prefs.ini)
 def section_list_all(conf, name_section):
     return conf.items(name_section)
 
@@ -49,6 +51,22 @@ def set_prefs(conf, sections):
             print (key, val)
             fp.set_preference(key, val)
     return fp
+
+
+def safebrowsing_files_unique():
+    # return list of unique safebrowsing files (less file extension)
+    f = []
+    for name in os.listdir('safebrowsing'):
+        file = os.path.splitext(name)[0]
+        if file not in (f):
+            f.append(file)
+    return f
+
+
+def safebrowsing_files_local():
+    # return list of all local safebrowsing files
+    f = []
+    return [f.append(file) for name in os.listdir('safebrowsing')]
 
 
 if __name__ == '__main__':
