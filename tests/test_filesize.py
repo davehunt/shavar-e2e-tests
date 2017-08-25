@@ -9,33 +9,38 @@
 # 5. verify size is under maximum
 import os
 
-from helper_prefs import get_profile_expected_files
+from helper_prefs import max_file_size_file_list
+from helper_prefs import pref_sets_combined_file_lists
 
 f = []
 s = []
 
 
-def test_safebrowsing_contains_files(conf):
+def test_safebrowsing_contains_expected_files(conf):
     """Hardcoded location of safebrowsing directory will need to be updated
-    to reflect new FF profile file directory"""
+    to reflect new FF profile file directory. Also, hardcoded profile type
+    'moztestpub' needs to be updated to reflect test profile type."""
     # Get list of local files
     for name in os.listdir('safebrowsing'):
         file = os.path.splitext(name)[0]
         if file not in (f):
             f.append(file)
 
-    expected = get_profile_expected_files(conf, ('moztestpub'))
+    expected = pref_sets_combined_file_lists(conf, 'moztestpub')
     assert set(expected).issubset(set(f))
 
 
-def test_filesize(conf):
-    # collect local file sizes
-    for file in os.listdir('safebrowsing'):
-        # print(f)
-        if file in (f):
-            size = os.path.getsize(os.path.join('safebrowsing', file))
-            s.append(size)
-    # print (s)
-    wh_size = conf.get("whitelist", "size_threshold")
-    for item in s:
-        assert item < wh_size
+def test_safebrowsing_filesize_under_maximum(conf):
+    """Hardcoded location of safebrowsing folder, and filesize grouping
+    named whitelist will need to be updated."""
+    # List of expected files
+    expected = max_file_size_file_list(conf, 'whitelist')
+
+    # Collect local files that match expected list
+    max_list_set = set(expected).intersection(f)
+
+    # Get file sizes
+    for file in max_list_set:
+        size = os.path.getsize(os.path.join('safebrowsing', file))
+        s.append(size)
+        print('s loop entry', s)
