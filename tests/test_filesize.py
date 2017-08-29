@@ -1,11 +1,6 @@
-# This test should only test filesizes when the file exists
-# TODO: check setup to make sure to verify that all the files shavar should
-# have delivered to the cache are actually there.
-
-# 1. get list of files from /safebrowsing
+# 1. get list of files from local /safebrowsing
 # 2. get filesizes of ^^
-# 3. add filename/size key pairs to dict
-# 4. get prefs header [ex: whitelist], compare to files in dict
+# 4. get filesize group [ex: whitelist], compare to local matching files
 # 5. verify size is under maximum
 import os
 
@@ -32,14 +27,19 @@ def test_safebrowsing_filesize_under_maximum(conf):
     named whitelist will need to be updated."""
     # List of expected files
     expected = max_file_size_file_list(conf, 'whitelist')
-
+    print('expected list', expected)
     # Collect local files that match expected list
     f = safebrowsing_files_local()
+    print('f list here', f)
     max_list_set = set(expected).intersection(f)
+    print('max list here', max_list_set)
 
     # Get file sizes
     s = []
-    for file in max_list_set:
+    for file in (f):
         size = os.path.getsize(os.path.join('safebrowsing', file))
         s.append(size)
         print('s loop entry', s)
+
+    for items in (s):
+        assert items threshold_operation size_threshold 

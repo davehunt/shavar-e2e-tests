@@ -65,8 +65,8 @@ def safebrowsing_files_unique():
 
 def safebrowsing_files_local():
     # return list of all local safebrowsing files
-    f = []
-    return [f.append(file) for name in os.listdir('safebrowsing')]
+    f = [x for x in os.listdir('safebrowsing')]
+    return f
 
 
 if __name__ == '__main__':
