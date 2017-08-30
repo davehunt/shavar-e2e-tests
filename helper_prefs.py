@@ -1,5 +1,9 @@
 import os
+import json
 from selenium import webdriver
+
+
+PATH_DIR = './safebrowsing'
 
 
 dir = ('safebrowsing')
@@ -68,15 +72,33 @@ def safebrowsing_files_local():
     return {x for x in os.listdir('safebrowsing')}
 
 
+PATH_DIR = './safebrowsing'
+
+
+def safebrowsing_files_local_NEW():
+
+    found = []
+    for filename in os.listdir(PATH_DIR):
+        file_path = '{0}/{1}'.format(PATH_DIR, filename)
+        fsize = os.path.getsize(file_path)
+        print(fsize)
+        tmp = (filename, fsize)
+        found.append(tmp)
+    return found 
+
+
 def subset_safebrowsing_prefs(conf, section):
     f = []
-    expected = set(max_file_size_file_list(conf, section))
+    # found
     items = safebrowsing_files_local()
-    # for item in items:
-    #     #if item.startswith(i from (expected)):
-    #
-    #     print(item)
-            #f.append(item)
+    # expected
+    expected = set(max_file_size_file_list(conf, section))
+    exts = ['pset', 'sbstore']
+    filenames_expected = [] 
+    for item in expected:
+        for ext in exts:
+            filenames_expected.append('{0}.{1}'.format(item, ext))
+    return filenames_expected
 
 
 if __name__ == '__main__':
