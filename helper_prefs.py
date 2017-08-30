@@ -65,8 +65,18 @@ def safebrowsing_files_unique():
 
 def safebrowsing_files_local():
     # return list of all local safebrowsing files
-    f = [x for x in os.listdir('safebrowsing')]
-    return f
+    return {x for x in os.listdir('safebrowsing')}
+
+
+def subset_safebrowsing_prefs(conf, section):
+    f = []
+    expected = set(max_file_size_file_list(conf, section))
+    items = safebrowsing_files_local()
+    # for item in items:
+    #     #if item.startswith(i from (expected)):
+    #
+    #     print(item)
+            #f.append(item)
 
 
 if __name__ == '__main__':

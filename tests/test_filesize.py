@@ -8,7 +8,8 @@ from helper_prefs import (
   max_file_size_file_list,
   pref_sets_combined_file_lists,
   safebrowsing_files_unique,
-  safebrowsing_files_local
+  safebrowsing_files_local,
+  subset_safebrowsing_prefs
 )
 
 
@@ -26,20 +27,21 @@ def test_safebrowsing_filesize_under_maximum(conf):
     """Hardcoded location of safebrowsing folder, and filesize grouping
     named whitelist will need to be updated."""
     # List of expected files
-    expected = max_file_size_file_list(conf, 'whitelist')
+    expected = set(max_file_size_file_list(conf, 'whitelist'))
+    print('----------')
     print('expected list', expected)
+    print('----------')
     # Collect local files that match expected list
-    f = safebrowsing_files_local()
-    print('f list here', f)
-    max_list_set = set(expected).intersection(f)
-    print('max list here', max_list_set)
+    found = safebrowsing_files_local()
+    print('found list here', found)
+    subset_safebrowsing_prefs(conf, 'whitelist')
 
-    # Get file sizes
-    s = []
-    for file in (f):
-        size = os.path.getsize(os.path.join('safebrowsing', file))
-        s.append(size)
-        print('s loop entry', s)
-
-    for items in (s):
-        assert items threshold_operation size_threshold 
+    # # Get file sizes
+    # s = []
+    # for file in (f):
+    #     size = os.path.getsize(os.path.join('safebrowsing', file))
+    #     s.append(size)
+    #     print('s loop entry', s)
+    #
+    # for items in (s):
+    #     assert items threshold_operation size_threshold
