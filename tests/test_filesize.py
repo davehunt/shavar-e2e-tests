@@ -4,12 +4,15 @@
 # 5. verify size is under maximum
 import os
 
+import json
+
 from helper_prefs import (
+  filesize_index,
   max_file_size_file_list,
   pref_sets_combined_file_lists,
   safebrowsing_files_unique,
   safebrowsing_files_local,
-  safebrowsing_files_local_NEW,
+  safebrowsing_files_local_expected,
   subset_safebrowsing_prefs
 )
 
@@ -27,40 +30,16 @@ def test_safebrowsing_contains_expected_files(conf):
 def test_safebrowsing_filesize_under_maximum(conf):
     """Hardcoded location of safebrowsing folder, and filesize grouping
     named whitelist will need to be updated."""
-    # List of expected files
-    expected = set(max_file_size_file_list(conf, 'whitelist'))
-    print('----------')
-    print('expected list', expected)
-    print('----------')
-    # Collect local files that match expected list
-    found = safebrowsing_files_local()
-    print('found list here', found)
-    filenames_expected = subset_safebrowsing_prefs(conf, 'whitelist')
-    import json
-    fe = json.dumps(filenames_expected, indent=4)
-    print(fe)
+    sections_filesizes = filesize_index(conf)
+    for section in sections_filesizes:
+        print('----------------')
+        print(section)
+        print('----------------')
+        size_threshold = conf.get(section, 'size_threshold')
+        threshold_operation = conf.get(section, 'threshold_operation')
+        found_expected = safebrowsing_files_local_expected(conf, section)
 
-    # # Get file sizes
-    # s = []
-    # for file in (f):
-    #     size = os.path.getsize(os.path.join('safebrowsing', file))
-    #     s.append(size)
-    #     print('s loop entry', s)
-    #
-    # for items in (s):
-    #     assert items threshold_operation size_threshold
-
-    section = 'DNT'
-    size_threshold = conf.get(section, 'size_threshold')
-    threshold_operation = conf.get(section, 'threshold_operation')
-    #size_threshold = 100
-    #threshold_op = '>'
-    found = safebrowsing_files_local_NEW()
-
-    for f in found:
-	conditional = '{0} {1} {2}'.format(f[1], threshold_operation, size_threshold)
-	if eval(conditional):
-	    print('{0}: {1}'.format(f[0], f[1]))
-	    #assert
-
-
+        for f in found_expected:
+            conditional = '{0} {1} {2}'.format(f[1], threshold_operation, size_threshold)
+            print(f)
+            assert eval(conditional), 'Filesize unexpected'

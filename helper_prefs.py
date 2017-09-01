@@ -20,8 +20,8 @@ def section_list_all(conf, name_section):
     return conf.items(name_section)
 
 
-def max_file_size_index(conf):
-    return conf.get('index', 'max_file_size').split(',')
+def filesize_index(conf):
+    return conf.get('index', 'filesize_index').split(',')
 
 
 # returns expected "max file size" grouping file_list from prefs.ini
@@ -52,7 +52,6 @@ def set_prefs(conf, sections):
     for section in sections:
         items = conf.items(section)
         for (key, val) in items:
-            print (key, val)
             fp.set_preference(key, val)
     return fp
 
@@ -67,34 +66,41 @@ def safebrowsing_files_unique():
     return f
 
 
-def safebrowsing_files_local():
-    # return list of all local safebrowsing files
-    return {x for x in os.listdir('safebrowsing')}
+# def safebrowsing_files_local():
+#     # return list of all local safebrowsing files
+#     return {x for x in os.listdir('safebrowsing')}
 
 
 PATH_DIR = './safebrowsing'
 
 
-def safebrowsing_files_local_NEW():
-
+def safebrowsing_files_local():
     found = []
     for filename in os.listdir(PATH_DIR):
         file_path = '{0}/{1}'.format(PATH_DIR, filename)
         fsize = os.path.getsize(file_path)
-        print(fsize)
         tmp = (filename, fsize)
         found.append(tmp)
-    return found 
+    return found
+
+
+def safebrowsing_files_local_expected(conf, section):
+    found = safebrowsing_files_local()
+    expected = set(max_file_size_file_list(conf, section))
+    filenames_expected = subset_safebrowsing_prefs(conf, section)
+    found_expected = []
+    for filename_local in found:
+        for filename_expected in filenames_expected:
+            if filename_expected == filename_local[0]:
+                found_expected.append(filename_local)
+    return found_expected
 
 
 def subset_safebrowsing_prefs(conf, section):
     f = []
-    # found
-    items = safebrowsing_files_local()
-    # expected
     expected = set(max_file_size_file_list(conf, section))
     exts = ['pset', 'sbstore']
-    filenames_expected = [] 
+    filenames_expected = []
     for item in expected:
         for ext in exts:
             filenames_expected.append('{0}.{1}'.format(item, ext))
@@ -117,6 +123,5 @@ if __name__ == '__main__':
     #val = max_file_size_list_all(conf)
     #val = max_file_size_file_list(conf, 'whitelist')
     #val = pref_sets_index(conf)
-    #val = max_file_size_index(conf)
     #val = pref_sets_combined_file_lists(conf, 'mozfull')
     print(val)
