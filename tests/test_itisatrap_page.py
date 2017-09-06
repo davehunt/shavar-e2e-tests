@@ -1,5 +1,9 @@
+import os
 import pytest
 from pages.itisatrap import ItisaTrapPage
+
+
+PREF_SET = os.environ['PREF_SET']
 
 
 @pytest.mark.nondestructive
