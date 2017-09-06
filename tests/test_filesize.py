@@ -1,5 +1,11 @@
+# TO DO: remove print val statements on helper_prefs
+# TO DO: remove hardcoded safebrowsing folder location
+# TO DO: Find a way to cycle through these tests using different
+# profile types, remove hardcoded line 31
+# TO DO: remove extra print statements line 40
 # 1. get list of files from local /safebrowsing
-# 2. get filesizes of ^^
+# 2. confirm they match expected files
+# 3. get filesizes
 # 4. get filesize group [ex: whitelist], compare to local matching files
 # 5. verify size is under maximum
 import os
