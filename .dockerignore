@@ -1,0 +1,14 @@
+.DS_Store
+*.sw[op]
+*.log
+venv
+.cache
+__pycache__
+*.pyc
+.tox
+*.BAK
+.firefox
+~archive
+LICENSE
+README.md
+scripts
