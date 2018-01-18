@@ -5,7 +5,7 @@ import sys
 import time
 from foxpuppet import FoxPuppet
 import pytest
-from selenium.webdriver import Firefox, FirefoxProfile
+from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from helper_prefs import set_prefs # noqa
 from os_handler import OSHandler
@@ -102,38 +102,18 @@ def firefox_options(conf, firefox_options, pref_set):
 
 
 @pytest.fixture
-def selenium_setup(pref_set, channel, firefox_options):
-    """Setup custom prefs and restart.
+def selenium(pref_set, channel, firefox_options):
+    """Start Firefox with custom preferences & binary.
     1. create FirefoxBinary object (with custom path)
     2. add custom preferences to firefox_options
-    3. create Firefox object (with custom: binary and preferences)
+    3. create Firefox object (with custom binary and preferences)
+    4. start browser for test
     4. copy profile to local cache for later use
-    5. quit firefox
+    5. quit firefox when test completed
     """
-
     binary = firefox_binary(channel)
     driver = Firefox(firefox_binary=binary, firefox_options=firefox_options)
     profile_copy(driver, pref_set)
-    driver.quit()
-
-
-@pytest.fixture
-def selenium(pref_set, channel):
-    """Start Firefox with custom profile & binary.
-    1. create FirefoxBinary object (with custom path)
-    2. create FirefoxProfile object (with pre-existing profile
-       from selenium_setup)
-    3. create Firefox object (with custom: binary, profile objects)
-    4. start browser for test
-    5. quite firefox when test completed
-    """
-
-    path_prof = path_profile(pref_set)
-
-    binary = firefox_binary(channel)
-    profile = FirefoxProfile(path_prof)
-
-    driver = Firefox(firefox_binary=binary, firefox_profile=profile)
     yield driver
     driver.quit()
 
