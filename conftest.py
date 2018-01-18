@@ -6,7 +6,6 @@ import time
 from foxpuppet import FoxPuppet
 import pytest
 from selenium.webdriver import Firefox
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from helper_prefs import set_prefs # noqa
 from os_handler import OSHandler
 
@@ -28,31 +27,6 @@ def path_safebrowsing(firefox_options):
     path_safebrowsing = '{0}/safebrowsing'.format(path_profile)
     print('PATH_SAFEBROWSING: {0}'.format(path_safebrowsing))
     return path_safebrowsing
-
-
-def path_firefox(channel='nightly'):
-    h = OSHandler()
-    this_os = h.get_os()
-
-    # remove OSHandler once docker in place
-    if this_os == 'mac':
-        channel = channel.title()
-        path_firefox = '{0}/browsers/Firefox{1}.app/Contents/MacOS/firefox-bin'.format(PATH_CACHE, channel) # noqa
-        path_firefox = path_firefox.encode('utf-8')
-    elif this_os == 'linux':
-        # download must detar to firefox-nightly or firefox-release
-        path_firefox = '{0}/browsers/firefox-{1}/firefox-bin'.format(
-            PATH_CACHE, channel)
-        path_firefox = path_firefox.encode('utf-8')
-        pass
-    else:
-        sys.exit('ERROR: OS not supported')
-    return path_firefox
-
-
-def firefox_binary(channel):
-    path_binary = path_firefox(channel)
-    return FirefoxBinary(path_binary)
 
 
 def path_profile(pref_set):
@@ -102,17 +76,34 @@ def firefox_options(conf, firefox_options, pref_set):
 
 
 @pytest.fixture
-def selenium(pref_set, channel, firefox_options):
-    """Start Firefox with custom preferences & binary.
-    1. create FirefoxBinary object (with custom path)
-    2. add custom preferences to firefox_options
-    3. create Firefox object (with custom binary and preferences)
-    4. start browser for test
-    4. copy profile to local cache for later use
-    5. quit firefox when test completed
+def firefox_path(channel):
+    h = OSHandler()
+    this_os = h.get_os()
+
+    # remove OSHandler once docker in place
+    if this_os == 'mac':
+        channel = channel.title()
+        path_firefox = '{0}/browsers/Firefox{1}.app/Contents/MacOS/firefox-bin'.format(PATH_CACHE, channel) # noqa
+        path_firefox = path_firefox.encode('utf-8')
+    elif this_os == 'linux':
+        # download must detar to firefox-nightly or firefox-release
+        path_firefox = '{0}/browsers/firefox-{1}/firefox-bin'.format(
+            PATH_CACHE, channel)
+        path_firefox = path_firefox.encode('utf-8')
+        pass
+    else:
+        sys.exit('ERROR: OS not supported')
+    return path_firefox
+
+
+@pytest.fixture
+def selenium(pref_set, firefox_options):
+    """Start Firefox with custom preferences.
+    1. create Firefox object (with custom options)
+    2. copy profile to local cache for later use
+    3. quit firefox when test completed
     """
-    binary = firefox_binary(channel)
-    driver = Firefox(firefox_binary=binary, firefox_options=firefox_options)
+    driver = Firefox(firefox_options=firefox_options)
     profile_copy(driver, pref_set)
     yield driver
     driver.quit()
