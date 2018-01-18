@@ -81,33 +81,6 @@ def profile_copy(driver, pref_set):
     shutil.copytree(path, path_profile_dest)
 
 
-def set_preferences(profile, name_section):
-    c = conf()
-    defaults = c.items(name_section)
-
-    print('\n====================================')
-    print('PREF_SET SECTION: {0}'.format(name_section))
-    print('====================================\n')
-
-    for key, val in defaults:
-        if val == 'true':
-            val = True
-        profile.set_preference(key, val)
-        print('KEY: {0}, VAL: {1}'.format(key, val))
-    return profile
-
-
-def firefox_profile(pref_set):
-    profile = FirefoxProfile()
-    # 1. Set default values
-    profile = set_preferences(profile, 'default')
-    # 2. Set test env (stage or prod)
-    profile = set_preferences(profile, TEST_ENV)
-    # This will come from: see - pytest_generate_tests
-    profile = set_preferences(profile, pref_set)
-    return profile
-
-
 @pytest.fixture
 def browser(foxpuppet):
     """First Firefox browser window opened."""
@@ -121,19 +94,25 @@ def foxpuppet(selenium):
 
 
 @pytest.fixture
-def selenium_setup(pref_set, channel):
+def firefox_options(conf, firefox_options, pref_set):
+    for section in ['default', TEST_ENV, pref_set]:
+        for name, value in conf.items(section):
+            firefox_options.set_preference(name, value == 'true' or value)
+    return firefox_options
+
+
+@pytest.fixture
+def selenium_setup(pref_set, channel, firefox_options):
     """Setup custom prefs and restart.
     1. create FirefoxBinary object (with custom path)
-    2. create FirefoxProfile object (with custom prefs)
-    3. create Firefox object (with custom: binary, profile objects)
+    2. add custom preferences to firefox_options
+    3. create Firefox object (with custom: binary and preferences)
     4. copy profile to local cache for later use
     5. quit firefox
     """
 
     binary = firefox_binary(channel)
-    profile = firefox_profile(pref_set)
-
-    driver = Firefox(firefox_binary=binary, firefox_profile=profile)
+    driver = Firefox(firefox_binary=binary, firefox_options=firefox_options)
     profile_copy(driver, pref_set)
     driver.quit()
 
